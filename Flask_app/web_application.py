@@ -10,4 +10,4 @@ bootstrap = Bootstrap5(app)
 
 @app.route('/')
 def run_home():
-    return render_template("upload.html")
+    return render_template('home.html')
