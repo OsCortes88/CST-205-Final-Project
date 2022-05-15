@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Image Upload</h1>
+    {% if ran_filter == "True" %}
+        <p>
+            Image has been successfully upoaded and it applied the filter to it.
+            Check the static/files directory to view the saved image.
+        </p>
+        <a href = "{{ url_for('run_home') }}">
+            <button>
+                Home
+            </button>
+        </a>
+    {% else %}
+        <form method = "POST" type = "file" naem = "doc_file" enctype = 'multipart/form-data' accpet = '.doc'>
+            {{ form.hidden_tag() }}
+            {{ form.image_file() }}
+            {{ form.submit() }}
+        </form>
+    {% endif %}
+    
+</body>
+</html>

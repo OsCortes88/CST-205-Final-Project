@@ -10,6 +10,30 @@
         <p>
             To use our filters, upload your image below.
         </p>
+
+        <a href = "{{ url_for('upload_image', filter = 'grayscale' )}}">
+            <button>
+                Grayscale Filter
+            </button>
+        </a>
+
+        <a href = "{{ url_for('upload_image', filter = 'negative' )}}">
+            <button>
+                Negative Filter
+            </button>
+        </a>
+
+        <a href = "{{ url_for('upload_image', filter = 'sepia' )}}">
+            <button>
+                Sepia Filter
+            </button>
+        </a>
+
+        <a href = "{{ url_for('upload_image', filter = 'scale' )}}">
+            <button>
+                Scaling Filter
+            </button>
+        </a>
     </div>
 </body>
 </html>
