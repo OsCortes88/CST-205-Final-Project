@@ -58,6 +58,9 @@ class ImageFilter():
             self.sepia_filter()
         elif self.filter == 'scale':
             self.thumbnail_filter(self.scale, self.direction)
+        elif self.filter == 'collage':
+            self.collage()
+
 
     def grayscale_filter(self):
         # Grayscale by illuminance method.
@@ -145,6 +148,23 @@ class ImageFilter():
         self.image.putdata(list(self.lumi_list))
         self.image.save(f"static/files/{self.file_name}")
 
+    # Collage 
+    def collage(self):
+        self.new = Image.open("static/files/space.jpg")
+        self.new = self.new.resize((800,800))
+        self.img = Image.open(f"static/files/{self.file_name}")
+        self.img = self.img.resize((200,200))
+        self.new.paste(self.img, (0,0))
+        self.new.paste(self.img, (0, 400))
+        self.new.paste(self.img, (0, 800))
+        self.new.paste(self.img, (200,200))
+        self.new.paste(self.img, (200, 600))
+        self.new.paste(self.img, (400, 0))
+        self.new.paste(self.img, (400,400))
+        self.new.paste(self.img, (400, 800))
+        self.new.paste(self.img, (600,600))
+        self.new.paste(self.img, (600, 200))
+        self.new.save(f"static/files/new_{self.file_name}")
 
 # The key is needed for the forms
 app.config['SECRET_KEY'] = 'mediaproject22'
