@@ -1,7 +1,10 @@
 # CST-205-Final-Project
 Course: CST 205
+
 Date: 5-19-2022
+
 Title: CST 205 Final Project: Image Filtering
+
 Team Members: Oswaldo Cortes-Tinoco, Edgar Hernadez, Fernando Pullido, and Carlos Santiago-Pacheco
 Oswaldo's Contributions: He wrote the basic classes for the forms and the filters as well as setting up the 
 routes for the flask appication in the "web_application.py" file. He also worked on the "website.html" file
