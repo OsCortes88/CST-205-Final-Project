@@ -5,27 +5,34 @@ Abstract: This program runs a flask application where the user can upload their 
 select an image filter to apply to the image. It then saves the changed image with the filter to the
 computer where the user can access it and displays the result in the web page.There is also a weather filter
 that makes use of a weather API to change the image to a filter that goes according to the weather in the region 
-of the user.
+(zipcode) of the user.
 Authors: Oswaldo Cortes-Tinoco, Edgar Hernadez, Fernando Pullido, and Carlos Santiago-Pacheco
+
 Oswaldo's Contributions: He wrote the basic classes for the forms and the filters as well as setting up the 
 routes for the flask appication in the "web_application.py" file. He also worked on the "website.html" file
-to send the user to a distinct webpage that displayed different pages for the filter pages. 
+to send the user to a distinct webpage that displayed different pages for the filter pages.
+
+Edgar Hernandez's Contributions: He worked on the weather filter where he used a weather API and set it up so that the API 
+request takes in a zipcode as userinput and retrieves a city's weather conditions. Through json, he extraced the weather 
+condition (Clear, Clouds, Thunderstorm, Snow, Rain, Blurry, Drizzle) and used OpenCV to apply COLORMAP filters depending
+on such wender conditions.
+
 Date: 5-19-2022
 """
-
 
 from flask import Flask, render_template, redirect, request
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField, IntegerField, SelectField, validators
 from flask_bootstrap import Bootstrap5
 from werkzeug.utils import secure_filename
-import os
+import os, cv2, requests, json
 from wtforms.validators import InputRequired
 from PIL import Image
 import numpy as np
 
 # Starts Flask application
 app = Flask(__name__)
+
 # Class for multimedia filters.
 class ImageFilter():
     def __init__(self, file_data, filter, scale, direction):
@@ -159,6 +166,11 @@ class ImageUploadForScale(FlaskForm):
     # Makes a field for the user to select an option between reducing and enlarging an image
     up_or_down = SelectField(u'Scale Choice', choices = ['Reduce Image', 'Enlarge Image'])
 
+class ImageUploadForWeather(FlaskForm):
+    image_file = FileField("File", [validators.DataRequired()])
+    submit = SubmitField("Upload File")                                #99950 is the highest zipcode value
+    zipcode = IntegerField("Zipcode", [validators.DataRequired(), validators.NumberRange(0, 99950)])
+
 class ImageUpload(FlaskForm):
     image_file = FileField("File", validators=[InputRequired()])
     submit = SubmitField("Upload File")
@@ -184,6 +196,71 @@ def upload_image(filter):
                 test = ImageFilter(file, filter, form.scale.data, form.up_or_down.data)
             # Changes the page to display the image and allow the user to go back to the home page
             return render_template("website_code.html", form=form, filter = filter,  ran_filter = 'True')
+    
+    elif filter == 'weather':
+        # template used for uploading images but with zipcode input
+        form = ImageUploadForWeather()
+
+        # API Key generated from https://openweathermap.org
+        key = '4d8b7e6fe5aa71ef536bceab4839c750'
+        # Used OpenCV to apply Color Map filters depending on current wether
+
+        payload = {
+        'api_key': key,
+        'start_date': '2022-05-16',
+        'end_date': '2022-05-16'
+        }
+
+        zipcode = form.zipcode.data
+        # country code is used in API call, the weather filter will only work in cities in the US
+        country_code = 'US'
+        # API Call
+        endpoint = f'https://api.openweathermap.org/data/2.5/weather?zip={zipcode},{country_code}&appid={key}'
+
+        try:
+            r = requests.get(endpoint, params=payload)
+            # Get weather data from weather API
+            data = r.json()
+            weather_id = data['weather'][0]['id']
+            if weather_id > 700 and weather_id < 800:
+                # When weather ID was between 700-800 there were multiple weather conditions
+                # So I classified these weather conditions as 'Blurry' for simplification
+                # Instead of dealing with all seven similair weather conditions
+                weather = 'Blurry'
+            else:
+                # In JSON file, this was how to acces the weather condition
+                weather = data['weather'][0]['main']
+        except:
+            data = "empty"
+
+        if form.validate_on_submit():
+
+            if  form.image_file.data.filename[form.image_file.data.filename.find('.'):] in ALLOWED_EXTENSIONS:
+                file = form.image_file.data # Grabs the file
+                file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
+                
+                cv = cv2.imread(f'static/files/{file.filename}')
+
+                if(weather == 'Rain' or weather == 'Drizzle'):
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_OCEAN)
+                elif(weather == 'Clear'): 
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_HOT)
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_PINK)
+                elif(weather == 'Snow'):
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_OCEAN)
+                elif(weather == 'Thunderstorm'):
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_TWILIGHT)
+                elif(weather == 'Clouds' or weather == 'Blurry'):
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_PINK)
+                    cv = cv2.applyColorMap(cv, cv2.COLORMAP_BONE)
+                else:
+                    cv = cv
+                cv2.imwrite(f'static/files/{file.filename}', cv)
+
+                return render_template("website_code.html", form=form, filter = filter, weather = weather, ran_filter = 'True')
+
+        return render_template("website_code.html", form=form, filter = filter, ran_filter = 'False')
+    
     else:
         # Uses basic form template for uploading images
         form = ImageUpload()

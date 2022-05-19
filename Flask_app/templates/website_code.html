@@ -9,6 +9,12 @@
 <body style = "text-align: center; font-family: Calibri">
     <h1>Image Upload - {{ filter.title() }} Filter</h1>
     {% if ran_filter == "True" %}
+        {% if filter == 'weather' %}
+            <p>
+                The weather conditions at your zipcode is ({{weather}})
+            </p>
+            <br>
+        {% endif %}
         <p>
             Image has been successfully upoaded and it applied the filter to it.
             Check the static/files directory to view the saved image.
@@ -34,6 +40,20 @@
                 {{ form.image_file() }}
                 {{ form.submit }}
             </form>
+        {% elif filter == 'weather' %}
+            <br>
+            <br>
+            <form method = "POST" type = "file" naem = "doc_file" enctype = 'multipart/form-data' accpet = '.doc'>
+                {{ form.hidden_tag() }}
+                <h3>Enter Zipcode Below and Choose Image File Below</h3>
+                <p>A filtered image will be returned based on your zipcodes weather conditions</p>
+                {{ form.zipcode }}
+                <br>
+                <br>
+                {{ form.image_file() }}
+                {{ form.submit }}
+            </form>
+
         {% else %}
             <br>
             <br>
