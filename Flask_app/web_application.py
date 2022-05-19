@@ -1,3 +1,19 @@
+"""
+Course: CST 205
+Title: CST 205 Final Project: Image Filtering
+Abstract: This program runs a flask application where the user can upload their desired images and 
+select an image filter to apply to the image. It then saves the changed image with the filter to the
+computer where the user can access it and displays the result in the web page.There is also a weather filter
+that makes use of a weather API to change the image to a filter that goes according to the weather in the region 
+of the user.
+Authors: Oswaldo Cortes-Tinoco, Edgar Hernadez, Fernando Pullido, and Carlos Santiago-Pacheco
+Oswaldo's Contributions: He wrote the basic classes for the forms and the filters as well as setting up the 
+routes for the flask appication in the "web_application.py" file. He also worked on the "website.html" file
+to send the user to a distinct webpage that displayed different pages for the filter pages. 
+Date: 5-19-2022
+"""
+
+
 from flask import Flask, render_template, redirect, request
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField, IntegerField, SelectField, validators
@@ -13,14 +29,17 @@ app = Flask(__name__)
 # Class for multimedia filters.
 class ImageFilter():
     def __init__(self, file_data, filter, scale, direction):
-        # super().__init__()
+        # Stores the name of the file so we can then use it to name the file we will save.
         self.file_name = file_data.filename
+        # Creates a Pillow object so we can access pixel data
         self.image = Image.open(file_data)
         self.filter = filter
         self.scale = scale
         self.direction = direction
+        # The following will apply the filter depending on what the user selected
         self.applyfilter()
 
+    # It checks for which filter was selected and applies the filter selected.
     def applyfilter(self):
         if self.filter == "grayscale":
             self.grayscale_filter()
@@ -33,29 +52,38 @@ class ImageFilter():
 
     def grayscale_filter(self):
         # Grayscale by illuminance method.
+        # The following retrieves the pixel and uses the color channels to calculate the grayscale value.
         self.img_list = [ ( ( (299*p[0])+(587*p[1])+(114*p[2]) ) //1000,) *3 for p in self.image.getdata()]
 
+        # It changes the pixel value in the original picture to the grayscale pixel
         self.image.putdata(list(self.img_list))
+        # Saves the image to the files directory
         self.image.save(f"static/files/{self.file_name}")
 
     def negative_filter(self):
         # Negative
+        # The following retrieves the pixel and uses the color channels to calculate the negative value.
         self.img_list = [ ( (299-p[0]), (255-p[1]), (255-p[2]) )  for p in self.image.getdata()]
-
+        
+        # It changes the pixel value in the original picture to the negative pixel
         self.image.putdata(list(self.img_list))
+        # Saves the image to the files directory
         self.image.save(f"static/files/{self.file_name}")
 
     def thumbnail_filter(self, scale, direction):
         if direction == "Reduce Image":
             # Scale down
             self.w, self.h = self.image.width//scale, self.image.height//scale
+            # Creates a new Pillow object where the resized image will be.
             self.my_trgt = Image.new('RGB', (self.w, self.h))
 
             self.target_x = 0
+            # The loop skips pixels to make image small
             for source_x in range(0, self.image.width, scale):
                 self.target_y = 0
                 for source_y in range(0, self.image.height, scale):
                     self.p = self.image.getpixel((source_x, source_y))
+                    # Once the index is out of bounds the loop breaks
                     try:
                         self.my_trgt.putpixel((self.target_x,self.target_y), self.p)
                     except:
@@ -66,10 +94,12 @@ class ImageFilter():
             self.my_trgt.save(f"static/files/{self.file_name}")
         else:
             # scale up
+            # Calculates the new width and height for the image
             w, h = self.image.width*scale, self.image.height*scale
 
             self.my_trgt = Image.new('RGB', (w, h))
             target_x = 0
+            # The loop repeats the pixels in both x and y coordinates to enlarge the image
             for source_x in np.repeat(range(self.image.width), scale):
                 target_y = 0
                 for source_y in np.repeat(range(self.image.height), scale):
@@ -107,8 +137,9 @@ class ImageFilter():
         self.image.save(f"static/files/{self.file_name}")
 
 
-
+# The key is needed for the forms
 app.config['SECRET_KEY'] = 'mediaproject22'
+# Used to save the images into a directory when not using pillow
 app.config['UPLOAD_FOLDER'] = 'static/files'
 
 # Used for HTML fomrmating/styles
@@ -119,9 +150,13 @@ ALLOWED_EXTENSIONS = set([".jpg", ".png", ".PNG"])
 
 # Class for the file submission form
 class ImageUploadForScale(FlaskForm):
+    # Makes button for the image upload and checks that someth data was uploaded
     image_file = FileField("File", [validators.DataRequired()])
+    # Makes a submit button that will check if the user is done with his form
     submit = SubmitField("Upload File")
+    # Makes a field for the user to enter a number between 2-10
     scale = IntegerField("Scale Factor", [validators.DataRequired(), validators.NumberRange(2, 10)])
+    # Makes a field for the user to select an option between reducing and enlarging an image
     up_or_down = SelectField(u'Scale Choice', choices = ['Reduce Image', 'Enlarge Image'])
 
 class ImageUpload(FlaskForm):
@@ -137,19 +172,26 @@ def run_home():
 @app.route("/upload-image/<filter>", methods=["GET", "POST"])
 def upload_image(filter):
     if filter == 'scale':
+        # Creates the form to retrieve data needed from the user to scale the image.
         form = ImageUploadForScale()
+        # Checks if everything in the form has valid input
         if form.validate_on_submit():
-
+            # Checks if the image file extension is valid
             if  form.image_file.data.filename[form.image_file.data.filename.find('.'):] in ALLOWED_EXTENSIONS:
-                file = form.image_file.data # First grab the file
+                # Grabs the file uploaded
+                file = form.image_file.data 
+                # runs filter
                 test = ImageFilter(file, filter, form.scale.data, form.up_or_down.data)
+            # Changes the page to display the image and allow the user to go back to the home page
             return render_template("website_code.html", form=form, filter = filter,  ran_filter = 'True')
     else:
+        # Uses basic form template for uploading images
         form = ImageUpload()
         if form.validate_on_submit():
 
             if  form.image_file.data.filename[form.image_file.data.filename.find('.'):] in ALLOWED_EXTENSIONS:
-                file = form.image_file.data # First grab the file
+                file = form.image_file.data
+                # Runs filter but sets scale and direction parameters to values that will not make a difference.
                 test = ImageFilter(file, filter, 1, "")
             return render_template("website_code.html", form=form, filter = filter, ran_filter = 'True')
 
