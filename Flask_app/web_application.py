@@ -2,20 +2,30 @@
 Course: CST 205
 Title: CST 205 Final Project: Image Filtering
 Abstract: This program runs a flask application where the user can upload their desired images and 
-select an image filter to apply to the image. It then saves the changed image with the filter to the
-computer where the user can access it and displays the result in the web page.There is also a weather filter
-that makes use of a weather API to change the image to a filter that goes according to the weather in the region 
-(zipcode) of the user.
+select an image filter(Grayscale, Negative, Sepia) to apply to the image. It then saves the changed 
+image with the filter to the computer where the user can access it and displays the result in the 
+web page.There is a weather filter that makes use of a weather API to change the image to a filter 
+that goes according to the weather in the region through zipcode input. Another feature is that 
+the program produces a image collage of a single image. (NOT SURE IF THIS IS CORRECT) There is also an ASCII filer
+that transforms any image into a text file using ASCII characters.
 Authors: Oswaldo Cortes-Tinoco, Edgar Hernadez, Fernando Pullido, and Carlos Santiago-Pacheco
 
 Oswaldo's Contributions: He wrote the basic classes for the forms and the filters as well as setting up the 
 routes for the flask appication in the "web_application.py" file. He also worked on the "website.html" file
 to send the user to a distinct webpage that displayed different pages for the filter pages.
 
-Edgar Hernandez's Contributions: He worked on the weather filter where he used a weather API and set it up so that the API 
+Edgar's Contributions: He worked on the weather filter where he used a weather API and set it up so that the API 
 request takes in a zipcode as userinput and retrieves a city's weather conditions. Through json, he extraced the weather 
 condition (Clear, Clouds, Thunderstorm, Snow, Rain, Blurry, Drizzle) and used OpenCV to apply COLORMAP filters depending
 on such wender conditions.
+
+Fernando Pulido's Contributions: He worked on the space collage filter class that connects to the flask app and 
+set it up so that when a user uploads an image, that image is resized and pasted onto a background image in a 
+pattern that resembles that of a collage.
+
+Carlos's Contributions: He worked on the ASCII filter that uses the flask apps decorator route to allow the user
+to upload an image. With this inputted image, the next decorator route will display instructions as to how to
+access the text file that is produced. This text file looks like the inputted image but just with ASCII texts.
 
 Github Repository Link https://github.com/OsCortes88/CST-205-Final-Project.git
 
