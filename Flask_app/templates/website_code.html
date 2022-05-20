@@ -15,18 +15,24 @@
             </p>
             <br>
         {% endif %}
+        {% if filter == 'space collage' %}
+            <p>
+                Spacified!
+            </p>
+            <br>
+        {% endif %}
         <p>
             Image has been successfully upoaded and it applied the filter to it.
             Check the static/files directory to view the saved image.
         </p>
         <img src = "/static/files/{{ form.image_file.data.filename }}" height = "50%" width = "50%">
         <a href = "{{ url_for('run_home') }} ">
-        
+
         <br>
             <button>
                 Home
             </button>
-        </a>
+        </a>  
     {% else %}
         {% if filter == 'scale' %}
             <br>
@@ -53,7 +59,6 @@
                 {{ form.image_file() }}
                 {{ form.submit }}
             </form>
-
         {% else %}
             <br>
             <br>
