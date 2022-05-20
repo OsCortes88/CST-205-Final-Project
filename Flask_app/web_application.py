@@ -6,7 +6,7 @@ select an image filter(Grayscale, Negative, Sepia) to apply to the image. It the
 image with the filter to the computer where the user can access it and displays the result in the 
 web page.There is a weather filter that makes use of a weather API to change the image to a filter 
 that goes according to the weather in the region through zipcode input. Another feature is that 
-the program produces a image collage of a single image. (NOT SURE IF THIS IS CORRECT) There is also an ASCII filer
+the program produces a image collage of a single image. There is also an ASCII filer
 that transforms any image into a text file using ASCII characters.
 Authors: Oswaldo Cortes-Tinoco, Edgar Hernadez, Fernando Pullido, and Carlos Santiago-Pacheco
 
