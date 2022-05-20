@@ -8,7 +8,14 @@
 </head>
 <body style = "text-align: center; font-family: Calibri">
     <h1>Image Upload - {{ filter.title() }} Filter</h1>
+    
+
     {% if ran_filter == "True" %}
+        {% if filter == 'ASCII' %}
+            <p>The image has been succesfully uploaded and converted to ASCII Art</p>
+            <br>
+        {% endif %}
+
         {% if filter == 'weather' %}
             <p>
                 The weather conditions at your zipcode is ({{weather}})
